@@ -8,9 +8,9 @@ class Recording extends Component {
     constructor(props) {
         super(props);
         this.state = { 
-            Data:[
-                {Name:'Muhammad Umar Hayat',number:'0300 0000 000',Icon:'phone-outgoing'},
-            ]
+            // Data:[
+            //     {Name:'Noufile',number:'0300 0000 000',Icon:'phone-outgoing'},
+            // ]
          }
     }
 // renderRow = ({ item }) => {
@@ -164,5 +164,4 @@ const styles = StyleSheet.create({
       marginLeft: 8
     },
   });
-  
 export default Recording;

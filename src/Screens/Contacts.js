@@ -11,7 +11,6 @@ class Contact extends Component {
           ,{Name:'Hamza',number:'03000000000'},{Name:'Mubeen',number:'03000000000'},{Name:'Haris',number:'03000000000'},{Name:'Arsalan',number:'03000000000'}
       ],
       contactList:[],
-      umar:'umar',
     }
     componentDidMount(){
       console.log("Enter Componnent did mount ")

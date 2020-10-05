@@ -1,11 +1,19 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Image, ScrollView, TouchableOpacity, Modal, Text,FlatList } from "react-native";
+import { StyleSheet, View, Image, ScrollView, TouchableOpacity,PermissionsAndroid, Modal, Text,FlatList } from "react-native";
 import FeatherIcon from "react-native-vector-icons/Feather";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Feather from "react-native-vector-icons/Feather";
 import Entypo from "react-native-vector-icons/Entypo";
 import { TextInput } from 'react-native-gesture-handler';
+import CallDetectorManager from 'react-native-call-detection';
 import Communications from 'react-native-communications';
+import AudioRecorderPlayer, { 
+    AVEncoderAudioQualityIOSType,
+    AVEncodingOption, 
+    AudioEncoderAndroidType,
+    AudioSet,
+    AudioSourceAndroidType, 
+   } from 'react-native-audio-recorder-player';
 class CallsLog extends Component {
     constructor(props) {
         super(props);
@@ -15,12 +23,184 @@ class CallsLog extends Component {
                 ,{Name:'Hamza',number:'0300 0000 000',Icon:'phone-outgoing'},{Name:'Mubeen',number:'0300 0000 000',Icon:'phone-incoming'},{Name:'Haris',number:'0300 0000 000',Icon:'phone-incoming'},{Name:'Arsalan',number:'0300 0000 000',Icon:'phone-outgoing'}
             ],
             modeltextfeildnotfill:false,
-            DailNumber:''
+            DailNumber:'',
+            callDetector:null,
+            callStates:[],
+            isStart:false,
+            flatListItems:[],
+            SendPhonenumber:'',
+            recordSecs:0,
+            //recordTime:0,
+            isLoggingIn: false,
+            recordTime: '00:00:00',
+            currentPositionSec: 0,
+            currentDurationSec: 0,
+            playTime: '00:00:00',
+            duration: '00:00:00',
          }
+         this.audioRecorderPlayer = new AudioRecorderPlayer();
+         this.audioRecorderPlayer.setSubscriptionDuration(0.09); // optional. Default is 0.1
     }
 onChangeText = (key, value) => {
     this.setState({[key]: value});
 };
+callFriendTapped = () => {
+    // Alert.alert("Number",number);
+    this.startStopListener()
+    Linking.openURL('tel:this.state.DailNumber').catch(err => {
+        console.log(err);
+    });
+    };
+    startStopListener = () => {
+    Communications.phonecall(this.state.DailNumber, true)
+        if (this.state.isStart) {
+            console.log('Stop');
+            this.state.callDetector && this.state.callDetector.dispose();
+        } else {
+            console.log('Start');
+            this.state.callDetector = new CallDetectorManager(
+            (event, number) => {
+                console.log('event -> ', event + (number ? ' - ' + number : ''));
+                var updatedCallStates = this.state.callStates;
+                updatedCallStates.push(event + (number ? ' - ' + number : ''));
+                this.setState({FlatListItems:updatedCallStates})
+                this.setState({CallStates:updatedCallStates})
+                if (event === 'Disconnected') {
+                console.log("Cak end");
+                this.onStopRecord();
+                console.log("Cak end 2");
+
+                // Do something call got disconnected
+                } else if (event === 'Connected') {
+                console.log("Contected");
+                // Do something call got connected
+                // This clause will only be executed for iOS
+                } else if (event === 'Incoming') {
+                console.log("Incoming Call")
+                // Do something call got incoming
+                } else if (event === 'Dialing') {
+                console.log("Dailing Call")
+                // Do something call got dialing
+                // This clause will only be executed for iOS
+                } else if (event === 'Offhook') {
+                console.log("Call Start")
+                this.onStartRecord();
+                console.log("Call Start 2")
+
+                //Device call state: Off-hook.
+                // At least one call exists that is dialing,
+                // active, or on hold,
+                // and no calls are ringing or waiting.
+                // This clause will only be executed for Android
+                } else if (event === 'Missed') {
+                console.log("Missed a Call")
+                // Do something call got missed
+                // This clause will only be executed for Android
+                }
+            },
+            true, // True if you want to read the phone number of the incoming call [ANDROID]
+            () => {
+                console.log('Permission Denied by User');
+            }, // callback if your permission got denied [ANDROID] [only if you want to read incoming number] default: console.error
+            {
+                title: 'Phone State Permission',
+                message:
+                'This app needs access to your phone state in order to react and/or to adapt to incoming calls.',
+            }
+            );
+        }
+        // setIsStart(!isStart);
+        this.setState({isStart:this.state.isStart})
+        };
+    onStartRecord = async () => {
+    if (Platform.OS === 'android') {
+        try {
+        const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+            {
+            title: 'Permissions for write access',
+            message: 'Give permission to your storage to write a file',
+            buttonPositive: 'ok',
+            },
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+            console.log('You can use the storage');
+        } else {
+            console.log('permission denied');
+            return;
+        }
+        } catch (err) {
+        console.warn(err);
+        return;
+        }
+    }
+    if (Platform.OS === 'android') {
+        try {
+        const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+            {
+            title: 'Permissions for write access',
+            message: 'Give permission to your storage to write a file',
+            buttonPositive: 'ok',
+            },
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+            console.log('You can use the camera');
+        } else {
+            console.log('permission denied');
+            return;
+        }
+        } catch (err) {
+        console.warn(err);
+        return;
+        }
+    }
+    const path = 'hello.m4a';
+    const audioSet = {
+        AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
+        AudioSourceAndroid: AudioSourceAndroidType.MIC,
+        AVEncoderAudioQualityKeyIOS: AVEncoderAudioQualityIOSType.high,
+        AVNumberOfChannelsKeyIOS: 2,
+        AVFormatIDKeyIOS: AVEncodingOption.aac,
+    };
+    console.log('audioSet', audioSet);
+    const uri = await this.audioRecorderPlayer.startRecorder();
+    this.audioRecorderPlayer.addRecordBackListener((e) => {
+        this.setState({
+        recordSecs: e.current_position,
+        recordTime: this.audioRecorderPlayer.mmssss(
+            Math.floor(e.current_position),
+        ),
+        });
+    });
+    console.log(`uri: ${uri}`);
+    };
+    onStopRecord = async () => {
+    const result = await this.audioRecorderPlayer.stopRecorder();
+    this.audioRecorderPlayer.removeRecordBackListener();
+    this.setState({
+        recordSecs: 0,
+    });
+    console.log(result);
+    };
+    onStartPlay = async () => {
+    console.log('onStartPlay');
+    const msg = await this.audioRecorderPlayer.startPlayer();
+    console.log(msg);
+    this.audioRecorderPlayer.addPlayBackListener((e) => {
+        if (e.current_position === e.duration) {
+        console.log('finished');
+        this.audioRecorderPlayer.stopPlayer();
+        }
+        this.setState({
+        currentPositionSec: e.current_position,
+        currentDurationSec: e.duration,
+        playTime: this.audioRecorderPlayer.mmssss(Math.floor(e.current_position)),
+        duration: this.audioRecorderPlayer.mmssss(Math.floor(e.duration)),
+        });
+        return;
+    });
+    };
 renderRow = ({ item }) => {
     return (
         <ScrollView>
@@ -119,7 +299,8 @@ render() {
             <TouchableOpacity 
                 style={{width:'50%',height:40,backgroundColor:'#2BD642',borderRadius:20,flexDirection:'row',marginTop:20,marginLeft:'25%'}}
                 // onPress={()=>this.callFriendTapped(item.number)}
-                onPress = {() => Communications.phonecall(this.state.DailNumber, true)}
+                // onPress = {() => Communications.phonecall(this.state.DailNumber, true)}
+                onPress = {this.startStopListener}
                 >
                     <Feather name='phone-call' style={{marginLeft:10,marginTop:7}} size={30} color='white'/>
                     <Text style={{color:'white',margin:8,fontSize:17}}>Make a call</Text>
