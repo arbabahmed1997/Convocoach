@@ -7,12 +7,13 @@ import Entypo from "react-native-vector-icons/Entypo";
 import { TextInput } from 'react-native-gesture-handler';
 import CallDetectorManager from 'react-native-call-detection';
 import Communications from 'react-native-communications';
-import AudioRecorderPlayer, { 
+
+import AudioRecorderPlayer,{ 
     AVEncoderAudioQualityIOSType,
     AVEncodingOption, 
     AudioEncoderAndroidType,
     AudioSet,
-    AudioSourceAndroidType, 
+    AudioSourceAndroidType,
    } from 'react-native-audio-recorder-player';
 class CallsLog extends Component {
     constructor(props) {

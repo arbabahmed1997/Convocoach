@@ -78,7 +78,7 @@ class Navigation extends Component {
     render() { 
         return ( 
             <NavigationContainer>
-                <Stack.Navigator initialRouteName="TabDashboard"
+                <Stack.Navigator initialRouteName="GetStarted"
                     screenOptions={{
                     headerShown: false
                     }}

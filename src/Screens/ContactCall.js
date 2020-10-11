@@ -39,6 +39,9 @@ class ContactCall extends Component {
     this.audioRecorderPlayer = new AudioRecorderPlayer();
     this.audioRecorderPlayer.setSubscriptionDuration(0.09); // optional. Default is 0.1
   }
+  // componentDidMount(){
+  //   this.startStopListener()
+  // }
 callFriendTapped = (number) => {
     Alert.alert("Number",number);
     this.startStopListener()
@@ -299,12 +302,15 @@ renderRow = ({ item }) => {
                     <Feather name='star' style={{margin:20}} size={40} color='white'/>
                 </View>
               </View>
-            <TouchableOpacity style={{margin:20,alignSelf:'center'}} onPress={this.onStartRecord}>
+              <TouchableOpacity style={{margin:20,alignSelf:'center'}} onPress={this.startStopListener}>
+              <Text style={{fontSize:20}}>Start</Text>
+            </TouchableOpacity>
+            {/* <TouchableOpacity style={{margin:20,alignSelf:'center'}} onPress={this.onStartRecord}>
               <Text style={{fontSize:20}}>Start Recording</Text>
             </TouchableOpacity>
             <TouchableOpacity style={{margin:20,alignSelf:'center'}} onPress={this.onStopRecord}>
               <Text style={{fontSize:20}}>Stop Recording</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <TouchableOpacity style={{margin:20,alignSelf:'center'}} onPress={this.onStartPlay}>
               <Text style={{fontSize:20}}>Play Recording</Text>
             </TouchableOpacity>
