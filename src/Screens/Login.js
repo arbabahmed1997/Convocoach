@@ -1,108 +1,192 @@
 import React, { Component } from 'react';
 import {
-    StyleSheet,
-    View,
-    Image,
-    ImageBackground,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    TextInput
-  } from "react-native";
+  StyleSheet,
+  View,
+  Image,
+  ImageBackground,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  ActivityIndicator,
+  Alert
+} from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
-import {colors} from '../AppAssets/theme';
+import { colors } from '../AppAssets/theme';
+import Preferences from "../utils/Preferences";
+
 class Login extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {  }
+  constructor(props) {
+    super(props);
+    this.state = {
+      isLoading: false,
+      email: '',
+      password: ''
     }
-    render() { 
-        return ( 
-            <ScrollView>
-                <View style={styles.container}>
-                  <View style={styles.First}>
-                    <Image
-                    source={require("../assets/images/Login-icon.png")}
-                    resizeMode="contain"
-                    style={styles.LoginImage}
-                    ></Image>
-                    <Text style={styles.loginText}>Login</Text>
-                  </View>
-                  <View style={styles.TextFeildContainer}>
-                      <View style={styles.TextFeildRow}>
-                      <View style={styles.IconContainer}>
-                          <Image
-                          source={require("../assets/images/Mail-icon.png")}
-                          resizeMode="contain"
-                          style={styles.IconStyle}
-                          ></Image>
-                          <TextInput placeholder="Enter Email" style={styles.placeholder}/>
-                      </View>
-                      </View>
-                  </View>
-                  <View style={styles.TextFeildContainer}>
-                      <View style={styles.TextFeildRow}>
-                      <View style={styles.IconContainer}>
-                          <Image
-                          source={require("../assets/images/Password-icon.png")}
-                          resizeMode="contain"
-                          style={styles.IconStyle}
-                          ></Image>
-                          <TextInput placeholder="Enter Password" secureTextEntry={true} style={styles.placeholder}/>
-                      </View>
-                      </View>
-                  </View>
-                  <View style={{marginTop:15}}>
-                  <TouchableOpacity>
-                      <Text style={styles.forgotPassword}>Forgot Password?</Text>
-                      </TouchableOpacity>
-                  </View>
-                  {/* <View style={{marginTop:15}}>
+  }
+  render() {
+    const { isLoading } = this.state;
+
+    return (
+      <ScrollView>
+        <View style={styles.container}>
+          <View style={styles.First}>
+            <Image
+              source={require("../assets/images/Login-icon.png")}
+              resizeMode="contain"
+              style={styles.LoginImage}
+            ></Image>
+            <Text style={styles.loginText}>Login</Text>
+          </View>
+          <View style={styles.TextFeildContainer}>
+            <View style={styles.TextFeildRow}>
+              <View style={styles.IconContainer}>
+                <Image
+                  source={require("../assets/images/Mail-icon.png")}
+                  resizeMode="contain"
+                  style={styles.IconStyle}
+                ></Image>
+                <TextInput
+                  placeholder="Enter Email"
+                  style={styles.placeholder}
+                  onChangeText={text => this.setState({ email: text })}
+                  value={this.state.email}
+                />
+              </View>
+            </View>
+          </View>
+          <View style={styles.TextFeildContainer}>
+            <View style={styles.TextFeildRow}>
+              <View style={styles.IconContainer}>
+                <Image
+                  source={require("../assets/images/Password-icon.png")}
+                  resizeMode="contain"
+                  style={styles.IconStyle}
+                ></Image>
+                <TextInput
+                  placeholder="Enter Password"
+                  secureTextEntry={true}
+                  style={styles.placeholder}
+                  onChangeText={text => this.setState({ password: text })}
+                  value={this.state.password}
+                />
+              </View>
+            </View>
+          </View>
+          <View style={{ marginTop: 15 }}>
+            <TouchableOpacity>
+              <Text style={styles.forgotPassword}>Forgot Password?</Text>
+            </TouchableOpacity>
+          </View>
+          {/* <View style={{marginTop:15}}>
                       <View style={styles.iconRow}>
                       <TouchableOpacity>
                       <Icon name="check-square" style={styles.icon}></Icon></TouchableOpacity>
                       <Text style={styles.rememberMe}>Remember me</Text>
                       </View>
                   </View> */}
-                  <View style={{marginTop:20}}>
-                      <TouchableOpacity style={styles.LoginButton} onPress={() => this.props.navigation.navigate("TabDashboard") }>
-                      <Text style={styles.logIn}>LOG IN</Text></TouchableOpacity>
-                  </View>
-                  <View style={{marginTop:10}}>
-                      <Text style={styles.or2}>-OR-</Text>
-                      <Text style={styles.signInWith}>Sign in with</Text>
-                  </View>
-                  <View style={{marginTop:15}}>
-                      <View style={styles.SocialIcon}>
-                      <TouchableOpacity>
-                      <Image
-                          source={require("../assets/images/fb-icon.png")}
-                          resizeMode="contain"
-                          style={styles.FBicon}
-                      ></Image></TouchableOpacity>
-                      <TouchableOpacity>
-                      <Image
-                          source={require("../assets/images/Gmail-icon.png")}
-                          resizeMode="contain"
-                          style={styles.GmailIcon}
-                      ></Image></TouchableOpacity>
-                      </View>
-                  </View>
-                  <View style={{marginTop:20}}>
-                      <Text style={styles.loremIpsum}>Don&#39;t have an account?</Text>
-                      <TouchableOpacity onPress={() => this.props.navigation.navigate("Signup") }>
-                      <Text style={styles.signup}>Signup</Text></TouchableOpacity>
-                  </View>
-                </View>
-            </ScrollView>
-  );
-}
+          <View style={{ marginTop: 20 }}>
+            <TouchableOpacity
+              style={styles.LoginButton}
+              onPress={() => this.OnSubmit()}>
+              {this.state.isLoading ?
+                <ActivityIndicator size="small" color="#fff" style={{ marginTop: 15 }} />
+                :
+                <Text style={styles.logIn}>LOG IN</Text>
+              }
+            </TouchableOpacity>
+          </View>
+          <View style={{ marginTop: 10 }}>
+            <Text style={styles.or2}>-OR-</Text>
+            <Text style={styles.signInWith}>Sign in with</Text>
+          </View>
+          <View style={{ marginTop: 15 }}>
+            <View style={styles.SocialIcon}>
+              <TouchableOpacity>
+                <Image
+                  source={require("../assets/images/fb-icon.png")}
+                  resizeMode="contain"
+                  style={styles.FBicon}
+                ></Image></TouchableOpacity>
+              <TouchableOpacity>
+                <Image
+                  source={require("../assets/images/Gmail-icon.png")}
+                  resizeMode="contain"
+                  style={styles.GmailIcon}
+                ></Image></TouchableOpacity>
+            </View>
+          </View>
+          <View style={{ marginTop: 20 }}>
+            <Text style={styles.loremIpsum}>Don&#39;t have an account?</Text>
+            <TouchableOpacity onPress={() => this.props.navigation.navigate("Signup")}>
+              <Text style={styles.signup}>Signup</Text></TouchableOpacity>
+          </View>
+        </View>
+      </ScrollView>
+    );
+  }
+
+  validateIsEmail(email) {
+    return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email);
+  }
+
+  OnSubmit = () => {
+    const { email, password } = this.state
+
+    if (!this.validateIsEmail(email)) {
+      alert("Please enter a valid email address");
+      return;
+    }
+
+    if (password.trim().length < 1) {
+      alert("Please enter your password");
+      return;
+    }
+
+    try {
+      this.setState({ isLoading: true })
+
+      var formdata = new FormData();
+      formdata.append("email", email);
+      formdata.append("pass", password);
+
+      fetch("http://ec2-3-15-170-206.us-east-2.compute.amazonaws.com/login.php", {
+        method: 'POST',
+        //headers: { 'Content-type': 'application/json' },
+        body: formdata,
+        redirect: 'follow'
+      }).then(responce => responce.json()).then(user => {
+        console.log('loginData====', user)
+        this.setState({ isLoading: false })
+
+        if (user[0].result == 'success') {
+          this.setState({
+            email: '',
+            password: ''
+          });
+          Preferences.saveLoginData(user);
+          this.props.navigation.replace('TabDashboard');
+
+        } else {
+          Alert.alert(
+            "Login Failed",
+            user[0].result,
+          )
+        }
+      })
+    } catch (error) {
+      // Error saving data
+      this.setState({ isLoading: false })
+      console.log('error', error)
+      Alert.alert("Error", "Login failed")
+    }
+  };
 }
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    bottom:30,
-    backgroundColor:"#eee"
+    bottom: 30,
+    backgroundColor: "#eee"
   },
   First: {
     width: '100%',
@@ -114,14 +198,14 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     marginTop: 20,
-    alignSelf:'center',
+    alignSelf: 'center',
   },
   loginText: {
     color: "#121212",
     fontSize: 25,
     marginTop: 5,
-    textAlign:'center',
-    fontWeight:"bold"
+    textAlign: 'center',
+    fontWeight: "bold"
   },
   TextFeildContainer: {
     width: '100%',
@@ -142,15 +226,15 @@ const styles = StyleSheet.create({
     width: 30,
     height: 35
   },
-  LoginButton:{
-    width:'40%',
-    height:50,
-    marginLeft:'30%',
-    borderRadius:20,
-    backgroundColor:colors.AppTheme
+  LoginButton: {
+    width: '40%',
+    height: 50,
+    marginLeft: '30%',
+    borderRadius: 20,
+    backgroundColor: colors.AppTheme
   },
   placeholder: {
-    fontSize:17,
+    fontSize: 17,
     height: 40,
     width: '82%',
     marginLeft: 15,
@@ -170,23 +254,23 @@ const styles = StyleSheet.create({
   logIn: {
     color: "rgba(255,255,255,1)",
     fontSize: 18,
-    fontWeight:"bold",
-    textAlign:'center',
-    marginTop:15
+    fontWeight: "bold",
+    textAlign: 'center',
+    marginTop: 15
   },
   or2: {
     color: "#121212",
     fontSize: 18,
     marginTop: 11,
-    textAlign:'center',
-    fontWeight:"700"
+    textAlign: 'center',
+    fontWeight: "700"
   },
   signInWith: {
     color: "#121212",
     fontSize: 18,
     marginTop: 4,
-    textAlign:'center',
-    fontWeight:"700"
+    textAlign: 'center',
+    fontWeight: "700"
   },
   FBicon: {
     width: 40,
@@ -208,16 +292,16 @@ const styles = StyleSheet.create({
   loremIpsum: {
     color: "#121212",
     marginTop: 1,
-    fontSize:18,
-    height:25,
-    textAlign:'center'
+    fontSize: 18,
+    height: 25,
+    textAlign: 'center'
   },
   signup: {
     color: colors.AppTheme,
-    fontSize:20,
-    textAlign:'center',
-    height:25,
-    fontWeight:"bold"
+    fontSize: 20,
+    textAlign: 'center',
+    height: 25,
+    fontWeight: "bold"
   },
 });
 
