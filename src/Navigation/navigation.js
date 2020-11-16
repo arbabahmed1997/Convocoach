@@ -50,7 +50,7 @@
 //      );
 //   }
 // }
- 
+
 // export default NavigationFile;
 
 import React, { Component } from 'react';
@@ -73,30 +73,30 @@ const Drawer = createDrawerNavigator();
 class Navigation extends Component {
     constructor(props) {
         super(props);
-        this.state = {  }
+        this.state = {}
     }
-    render() { 
-        return ( 
+    render() {
+        return (
             <NavigationContainer>
                 <Stack.Navigator initialRouteName="GetStarted"
                     screenOptions={{
-                    headerShown: false
+                        headerShown: false
                     }}
                 >
-                <Stack.Screen name="GetStarted" component={GetStarted}/>
-                <Stack.Screen name="Login" component={Login}/>
-                <Stack.Screen name="Signup" component={Signup}/>
-                <Stack.Screen name="TabDashboard" component={TabDashboard}/>
-                <Stack.Screen name="Contact" component={Contact}/>
-                <Stack.Screen name="Sumary" component={Sumary}/>
-                <Stack.Screen name="Privacy" component={Privacy}/>
-                <Stack.Screen name="CallLogs" component={CallLogs} />
-                <Stack.Screen name="ContactLog" component={ContactLog} />
-                {/* <Stack.Screen name="CallLogs" component={CallLogs} /> */}
+                    <Stack.Screen name="GetStarted" component={GetStarted} />
+                    <Stack.Screen name="Login" component={Login} />
+                    <Stack.Screen name="Signup" component={Signup} />
+                    <Stack.Screen name="TabDashboard" component={TabDashboard} />
+                    <Stack.Screen name="Contact" component={Contact} />
+                    <Stack.Screen name="Sumary" component={Sumary} />
+                    <Stack.Screen name="Privacy" component={Privacy} />
+                    <Stack.Screen name="CallLogs" component={CallLogs} />
+                    <Stack.Screen name="ContactLog" component={ContactLog} />
+                    {/* <Stack.Screen name="CallLogs" component={CallLogs} /> */}
                 </Stack.Navigator>
             </NavigationContainer>
-         );
+        );
     }
 }
- 
+
 export default Navigation;

@@ -29,13 +29,13 @@ loadContacts = () => {
   console.log("Enter")
   Contacts.getAll((err, contacts) => {
   contacts.sort((a, b) => a.givenName.toLowerCase() > b.givenName.toLowerCase());
-  console.log('contacts -> ', contacts);
+  //console.log('contacts -> ', contacts);
   if (err === "denied") {
       alert("Permission to access contacts was denied");
       console.warn("Permission to access contacts was denied");
     } else {
       this.setState({contactList:contacts})
-      console.log('contacts', contacts);
+      //console.log('contacts', contacts);
     }
   });
 }
@@ -56,7 +56,7 @@ renderRow = ({ item }) => {
                 <View style={styles.nameColumn}>
                 <Text style={styles.name}>{item.displayName}</Text>
                   <Text style={styles.number}>{item.phoneNumbers.number}</Text>
-                  {console.log("item.phoneNumbers.number",item.phoneNumbers)}
+                  {/* {console.log("item.phoneNumbers.number",item.phoneNumbers)} */}
                 </View>
               </View>
             </View>
