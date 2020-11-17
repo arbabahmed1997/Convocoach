@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, ScrollView, View, Image, Text, FlatList, PermissionsAndroid, Linking, Alert } from "react-native";
+import { StyleSheet, ScrollView, View, Image, Text, FlatList, PermissionsAndroid, Linking, Alert, Button } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Feather from "react-native-vector-icons/Feather";
 import Contacts from 'react-native-contacts';
@@ -16,7 +16,7 @@ import AudioRecorderPlayer, {
 import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
 import { call } from 'react-native-reanimated';
-
+import DocumentPicker from 'react-native-document-picker';
 // const audioRecorderPlayer = new AudioRecorderPlayer();
 
 
@@ -42,11 +42,13 @@ class ContactCall extends Component {
       currentDurationSec: 0,
       playTime: '00:00:00',
       duration: '00:00:00',
-      logs: []
+      logs: [],
+      fileUri: []
     },
       this.audioRecorderPlayer = new AudioRecorderPlayer();
     this.audioRecorderPlayer.setSubscriptionDuration(0.09); // optional. Default is 0.1
     this.contactName = this.props.route.params.Name
+    this.fileUri = ''
 
   }
   // componentDidMount(){
@@ -263,6 +265,63 @@ class ContactCall extends Component {
     });
   };
 
+
+  mp3ToText = async() => {
+
+    if (this.fileUri == '') {
+      this.pickFile()
+    }
+    else {
+      console.log('else runsss')
+      try {
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "audio/mp3");
+        myHeaders.append("Authorization", "Basic YXBpa2V5Omw4dlpGWUpUUkVpa2cxcTRIX0JZRVNwc1Rhal9ZWHBvT2RDa0dlWldWQUM1");
+        //myHeaders.append("Authorization", "Basic l8vZFYJTREikg1q4H_BYESpsTaj_YXpoOdCkGeZWVAC5");
+
+        var file = this.fileUri;
+
+        var requestOptions = {
+          method: 'POST',
+          headers: myHeaders,
+          body: file,
+          redirect: 'follow'
+        };
+
+        await fetch("https://api.au-syd.speech-to-text.watson.cloud.ibm.com/instances/dbf0d03e-1d01-4161-9fc8-14a6f28f5ee6/v1/recognize", requestOptions)
+          .then(response => response.json())
+          .then(result => console.log('========',result))
+          .catch(error => console.log('error', error));
+      } catch (error) {
+        console.log('error===', error)
+      }
+    }
+  }
+
+  pickFile = async () => {
+    try {
+      const res = await DocumentPicker.pick({
+        type: [DocumentPicker.types.allFiles],
+      });
+      console.log(
+        res.uri,
+        res.type, // mime type
+        res.name,
+        res.size
+      );
+      //this.setState({ fileUri: res.uri })
+      //this.state.fileUri.push({ name: res.name, uri: res.uri })
+      this.fileUri = res.uri
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        // User cancelled the picker, exit any dialogs or menus and move on
+        console.log(err)
+      } else {
+        throw err;
+      }
+    }
+  }
+
   // onStartRecord = async () => {
   //   console.log("Enter Start function")
   //   const result = await this.audioRecorderPlayer.startRecorder();
@@ -342,12 +401,14 @@ class ContactCall extends Component {
             </View>
           </View>
         </View>
+
+
       </ScrollView>
     )
   }
 
 
-  renderCallLogContact = ( phoneNo ) => {
+  renderCallLogContact = (phoneNo) => {
     return (
       <ScrollView>
         <View style={styles.rect}>
@@ -409,7 +470,7 @@ class ContactCall extends Component {
           </View>
           :
           <View>
-            <TouchableOpacity style={{ margin: 20, alignSelf: 'center' }} onPress={this.startStopListener}>
+            <TouchableOpacity style={{ margin: 15, alignSelf: 'center' }} onPress={this.startStopListener}>
               <Text style={{ fontSize: 20 }}>Start</Text>
             </TouchableOpacity>
             {/* <TouchableOpacity style={{margin:20,alignSelf:'center'}} onPress={this.onStartRecord}>
@@ -418,12 +479,17 @@ class ContactCall extends Component {
             <TouchableOpacity style={{margin:20,alignSelf:'center'}} onPress={this.onStopRecord}>
               <Text style={{fontSize:20}}>Stop Recording</Text>
             </TouchableOpacity> */}
-            <TouchableOpacity style={{ margin: 20, alignSelf: 'center' }} onPress={this.onStartPlay}>
+            {/* <TouchableOpacity style={{ margin: 15, alignSelf: 'center' }} onPress={this.mp3ToText}>
+              <Text style={{ fontSize: 20 }}>mp3 to Text</Text>
+            </TouchableOpacity> */}
+
+            <TouchableOpacity style={{ margin: 15, alignSelf: 'center' }} onPress={this.onStartPlay}>
               <Text style={{ fontSize: 20 }}>Play Recording</Text>
             </TouchableOpacity>
             {/* <TouchableOpacity style={{margin:20,alignSelf:'center'}} onPress={this.onStopRecord}>
               <Text style={{fontSize:20}}>Stop Recording</Text>
             </TouchableOpacity> */}
+
             <View style={styles.container}>
               <Text style={{ fontSize: 20, textAlign: 'center', marginTop: 15 }}>Your Contact List is:</Text>
               <View>
