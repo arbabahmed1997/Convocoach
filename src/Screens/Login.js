@@ -14,6 +14,12 @@ import {
 import Icon from "react-native-vector-icons/FontAwesome";
 import { colors } from '../AppAssets/theme';
 import Preferences from "../utils/Preferences";
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+  statusCodes,
+} from '@react-native-community/google-signin';
+import { LoginButton, AccessToken } from 'react-native-fbsdk';
 
 class Login extends Component {
   constructor(props) {
@@ -24,6 +30,44 @@ class Login extends Component {
       password: ''
     }
   }
+
+  componentDidMount() {
+    GoogleSignin.configure({
+      scopes: ['https://www.googleapis.com/auth/drive.readonly'], // what API you want to access on behalf of the user, default is email and profile
+      webClientId:
+        '219796560845-5k0pu39ejt66u1sp35h5ljgrqpjlr3eg.apps.googleusercontent.com', // client ID of type WEB for your server (needed to verify user ID and offline access)
+      offlineAccess: true,
+      androidClientId:
+        '219796560845-uk4pi8os97aige5eqk1d8ig227o8qqi8.apps.googleusercontent.com' // debug Id
+        // '219796560845-fu5hg2jckpa075qmvr59n4317seslm32.apps.googleusercontent.com' // release Id
+    });
+  }
+
+
+  signIn = async () => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      console.log(userInfo)
+
+      Preferences.saveLoginData(userInfo);
+      this.props.navigation.replace('TabDashboard');
+    } catch (error) {
+      console.log('Message', error.message);
+      alert(error.message)
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        console.log('User Cancelled the Login Flow');
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        console.log('Signing In');
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        console.log('Play Services Not Available or Outdated');
+      } else {
+        console.log('Some Other Error Happened');
+        alert('Some Other Error Happened')
+      }
+    }
+  };
+
   render() {
     const { isLoading } = this.state;
 
@@ -108,7 +152,7 @@ class Login extends Component {
                   resizeMode="contain"
                   style={styles.FBicon}
                 ></Image></TouchableOpacity>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => this.signIn()}>
                 <Image
                   source={require("../assets/images/Gmail-icon.png")}
                   resizeMode="contain"
